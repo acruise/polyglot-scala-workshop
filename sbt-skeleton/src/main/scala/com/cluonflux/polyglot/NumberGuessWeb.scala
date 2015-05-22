@@ -9,7 +9,10 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.concurrent.Await
 
-object NumberGuessWeb extends App with SimpleRoutingApp with spray.httpx.SprayJsonSupport {
+object NumberGuessWeb extends App
+  with SimpleRoutingApp
+  with spray.httpx.SprayJsonSupport
+{
   implicit val system = ActorSystem("my-system")
 
   val game = system.actorOf(Props(new NumberGameActor))
@@ -36,7 +39,7 @@ object NumberGuessWeb extends App with SimpleRoutingApp with spray.httpx.SprayJs
   implicit val taggedHighF = new JsonWriter[High] {
     def write(high: High): JsValue = {
       highF.write(high) match {
-	case JsObject(fields) => 
+	      case JsObject(fields) =>
           JsObject(fields + ("status" -> JsString("High")))
       }
     }
@@ -62,25 +65,25 @@ object NumberGuessWeb extends App with SimpleRoutingApp with spray.httpx.SprayJs
   startServer(interface = "localhost", port = 8080) {
     path("restgame") {
       get {
-	complete(
-	  game.ask(QueryGuesses).mapTo[RemainingGuesses]
-	)	
+	      complete(
+	        game.ask(QueryGuesses).mapTo[RemainingGuesses]
+	      )
       } ~ post {
-	entity(as[Guess]) { guess =>  
+	      entity(as[Guess]) { guess =>
           val jsonFuture = game.ask(guess).map {
-	    case w: Won.type => JsObject(Map("status" -> JsString("Won")))
-	    case l: Lost.type => JsObject(Map("status" -> JsString("Lost")))
+            case w: Won.type => JsObject(Map("status" -> JsString("Won")))
+            case l: Lost.type => JsObject(Map("status" -> JsString("Lost")))
 
-	    case h: High => h.toJson
+            case h: High => h.toJson
             case l: Low => l.toJson
-  	  }
+    	  }
           
-  	  complete(jsonFuture.map(_.prettyPrint))
-	}
-      }
-    } ~ path("game") {
-      get {
-        complete {
+    	  complete(jsonFuture.map(_.prettyPrint))
+	    }
+    }
+  } ~ path("game") {
+    get {
+      complete {
           <xml:group>
             <h1>Welcome to the Number Game</h1>
 	    {form("/game")}
@@ -88,7 +91,7 @@ object NumberGuessWeb extends App with SimpleRoutingApp with spray.httpx.SprayJs
         }
       } ~ post {
 	formFields('guessed.as[Int]) { (guessed) =>
-          val htmlFuture = game.ask(Guess(guessed)) map {
+    val htmlFuture = game.ask(Guess(guessed)) map {
 	    case Won => <h1>You won!</h1>
 	    case Lost => <h1>You lost! :(</h1>
 
@@ -104,6 +107,7 @@ object NumberGuessWeb extends App with SimpleRoutingApp with spray.httpx.SprayJs
                  {form("/game")}
               </xml:group>
 	  }
+
 	  complete(htmlFuture)
 	}
       }
