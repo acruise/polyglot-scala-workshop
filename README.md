@@ -9,7 +9,7 @@ http://akka.io/
 http://spray.io/
 
 Spray HTTP - Directives
-http://spray.io/documentation/1.2.1/spray-routing/predefined-directives-alphabetically/
+http://spray.io/documentation/1.2.2/spray-routing/predefined-directives-alphabetically/
 
 Spray-JSON
 https://github.com/spray/spray-json
